@@ -15,9 +15,9 @@ def generate_tick(map_obj, current_tick):
     }
 
 def main():
-    api_key = "INSERT API KEY HERE"
-    base_url = "INSERT YOUR CHOSEN PORT HERE"
-    map_name = "INSERT MAP NAME HERE"
+    api_key = "1546ce68-d586-461a-9534-add93e4daacf"
+    base_url = "http://localhost:8080/api"
+    map_name = "Turbohill"
 
     client = ConsiditionClient(base_url, api_key)
     map_obj = client.get_map(map_name)

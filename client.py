@@ -14,6 +14,6 @@ class ConsiditionClient:
 
     def request(self, method: str, endpoint: str, **kwargs):
         url = f"{self.base_url}{endpoint}"
-        response = requests.request(method, url, headers=self.headers, verify=False, **kwargs)
+        response = requests.request(method, url, headers=self.headers, verify=True, **kwargs)
         response.raise_for_status()
         return response.json()
