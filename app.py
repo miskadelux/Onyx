@@ -1,6 +1,6 @@
 import sys
 import time
-from Onyx.client import ConsiditionClient
+from client import ConsiditionClient
 
 def should_move_on_to_next_tick(response):
     return True
