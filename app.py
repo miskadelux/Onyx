@@ -1,6 +1,7 @@
 import sys
 import time
 from client import ConsiditionClient
+from own_logic import print_map_UI
 
 def should_move_on_to_next_tick(response):
     return True
@@ -21,6 +22,8 @@ def main():
 
     client = ConsiditionClient(base_url, api_key)
     map_obj = client.get_map(map_name)
+    map_obj['ticks'] = 288
+
 
     if not map_obj:
         print("Failed to fetch map!")
