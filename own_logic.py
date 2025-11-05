@@ -43,7 +43,7 @@ def get_all_customers(map_obj):
 
     return customers
 
-def get_all_chargingstations(map_obj):
+def get_all_stations(map_obj):
     stations = []
 
     for node in map_obj['nodes']:
@@ -57,6 +57,6 @@ def get_all_chargingstations(map_obj):
 
 clients = client.ConsiditionClient("http://localhost:8080/api", None)
 map_obj = clients.get_map('Turbohill')
-k = get_all_chargingstations(map_obj)
+k = get_all_stations(map_obj)
 
 print(k)
