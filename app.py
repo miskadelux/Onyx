@@ -2,12 +2,23 @@ import sys
 import time
 from client import ConsiditionClient
 from own_logic import print_map_UI
+import json
 
 def should_move_on_to_next_tick(response):
     return True
 
 def generate_customer_recommendations(map_obj, current_tick):
-    return []
+    return [
+            # {
+            #   "customerId": null,
+            #   "chargingRecommendations": [
+            #     {
+            #       "nodeId": "",
+            #       "chargeTo": 1
+            #     }
+            #   ]
+            # }
+          ]
 
 def generate_tick(map_obj, current_tick):
     return {
@@ -22,7 +33,7 @@ def main():
 
     client = ConsiditionClient(base_url, api_key)
     map_obj = client.get_map(map_name)
-    map_obj['ticks'] = 288
+    map_obj['ticks'] = 50
 
 
     if not map_obj:
