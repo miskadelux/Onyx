@@ -1,4 +1,4 @@
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 
 def print_map_UI(map_obj):
     state = map_obj
