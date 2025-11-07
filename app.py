@@ -31,7 +31,6 @@ def main():
 
     client = ConsiditionClient(base_url, api_key)
     map_obj = client.get_map(map_name)
-    map_obj["playToTick"] = 10
 
 
     if not map_obj:
@@ -51,11 +50,11 @@ def main():
 
     for i in range(total_ticks):
         while True:
-            #print(f"Playing tick: {i} with input: {input_payload}")
+            print(f"Playing tick: {i} with input: {input_payload}")
             start = time.perf_counter()
             game_response = client.post_game(input_payload)
             elapsed_ms = (time.perf_counter() - start) * 1000
-            #print(f"Tick {i} took: {elapsed_ms:.2f}ms")
+            print(f"Tick {i} took: {elapsed_ms:.2f}ms")
 
             if not game_response:
                 print("Got no game response")

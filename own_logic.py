@@ -57,11 +57,11 @@ def get_all_stations(map_obj):
 
 # clients = client.ConsiditionClient("http://localhost:8080/api", None)
 # map_obj = clients.get_map('Turbohill')
-# # k = get_all_stations(map_obj)
+# k = get_all_customers(map_obj)
 
-# print_map_UI(map_obj)
-# for i in map_obj['nodes']:
-#     if i['id'] == '7.6':
-#         l = i
-# print(l)
-#1.0000005
+# # print_map_UI(map_obj)
+# # for i in map_obj['nodes']:
+# #     if i['id'] == '7.6':
+# #         l = i
+# print(k)
+# print(len(k))
