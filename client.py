@@ -4,7 +4,8 @@ class ConsiditionClient:
     def __init__(self, base_url: str, api_key: str):
         self.base_url = base_url
         self.api_key = api_key
-        self.headers = {"x-api-key": self.api_key}
+        self.headers = {"Content-Type": "application/json",
+                        "x-api-key": self.api_key}
     
     def post_game(self, data: object):
         return self.request("POST", "/game", json=data)
@@ -15,5 +16,9 @@ class ConsiditionClient:
     def request(self, method: str, endpoint: str, **kwargs):
         url = f"{self.base_url}{endpoint}"
         response = requests.request(method, url, headers=self.headers, verify=True, **kwargs)
+        # print()
+        # print(f"DEBUG: {response.status_code} {url}")
+        # print("Response text:", response.text)
         response.raise_for_status()
         return response.json()
+    
