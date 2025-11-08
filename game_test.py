@@ -1,16 +1,16 @@
 import sys
 import time
 from client import ConsiditionClient
-from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, shortest_length, calculate_max_lenght, find_customer, find_nearby_stations
+from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, shortest_length
 
 def generate_customer_recommendations(map_obj, current_tick):
     return [
             {
-              "customerId": "0.19", #0.9
+              "customerId": "0.1", #0.14
               "chargingRecommendations": [
                 {
-                  "nodeId": "2.4", #7.6
-                  "chargeTo": 0.786
+                  "nodeId": "7.6", #4.1
+                  "chargeTo": 1
                 }
               ]
             }
@@ -37,7 +37,7 @@ def main():
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0)],
-        "playToTick": 1
+        "playToTick":  0#4
     }
 
     game_response = client.post_game(input_payload)
@@ -45,7 +45,11 @@ def main():
     end_state_map = game_response.get("map")
     s_customers = get_all_customers(map_obj)
     e_customers = get_all_customers(end_state_map)
-    graph = create_graph(map_obj)
+    cmrs_nearby_stations = []
+    zone_kw = game_response.get('zoneLogs', 0)
+    #print(s_customers)
+
+    graph = create_graph(map_obj) 
 
     final_score = (
         game_response.get("customerCompletionScore", 0)
@@ -53,18 +57,22 @@ def main():
         + game_response.get("score", 0)
     )
 
-
     
-    cmr = find_customer('0.19', s_customers)
-    l = find_nearby_stations(cmr, map_obj, graph, stations)
+    cmr = find_customer('0.1', e_customers)
+    l = find_avalible_stations(cmr, map_obj, graph, stations)
+    #print_map_UI(end_state_map)
 
     # length = calculate_max_lenght(cmr)
     # k = shortest_length('0.0', graph, max_length=length)
-
-    e_cmr = find_customer('0.19', e_customers)
     
     print_map_UI(end_state_map)
+    #print(zone_kw[45]['zones'][0])
+    print(cmr['state'], cmr['inNode'], cmr['toNode'], cmr['chargeRemaining'])
     print(l)
+
+
+
+    #print(final_score)
             
 
     

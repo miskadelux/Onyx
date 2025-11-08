@@ -46,10 +46,9 @@ def get_all_customers(map):
             for customer in edge['customers']:
                 customer['inNode'] = edge['toNode']
                 customers.append(customer)
-
     return customers
 
-def find_customer(id: str, customers: list): ### testing
+def find_customer(id: str, customers: list):
     for customer in customers:
         if customer['id'] == id:
             return customer
@@ -62,8 +61,12 @@ def get_all_stations(map):
         if node['target']['Type']!= 'Null':
             node['target']['inNode'] = node['id']
             stations.append(node['target'])
-
     return stations
+
+def find_station(id: str, stations):
+    for station in stations:
+        if station['inNode'] == id:
+            return station
     
 def calculate_max_lenght(customer):
     charge = customer['chargeRemaining'] * customer['maxCharge']
@@ -81,7 +84,7 @@ def create_graph(map):
 
     return graph
 
-def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf')) -> float|dict:
+def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf')) -> float|dict: #Cant predict correctly, not sure why
     visited = []
     dist = {start_node:0}
 
@@ -91,11 +94,11 @@ def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf
         visited.append(node)
 
         for edge in graph[node]:
-            if edge[1] + weight < max_length: ### might want to add some legroom in case the drivers don't fint the optimal route?
+            if edge[1] + weight < max_length * 1: ### might want to add some legroom in case the drivers don't fint the optimal route?
                 if edge[0] not in dist.keys():
-                    dist[edge[0]] = edge[1] + weight
-                elif dist[edge[0]] > edge[1] + weight:
-                    dist[edge[0]] = edge[1] + weight
+                    dist[edge[0]] = edge[1] + dist[node]
+                elif dist[edge[0]] > edge[1] + dist[node]:
+                    dist[edge[0]] = edge[1] + dist[node]
                     
                 in_pq = False
                 for i in pq:
@@ -105,6 +108,10 @@ def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf
                 if edge[0] not in visited and not in_pq:
                     pq.append((edge[1] + weight, edge[0]))
 
+        
+
+        pq.sort()
+
     if end_node != None and end_node in dist.keys():
         return dist[end_node]
     elif end_node != None:
@@ -112,14 +119,34 @@ def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf
     else:
         return dist
     
-def find_nearby_stations(customer, map, graph, stations):
+def find_avalible_stations(customer, map, graph, stations):
+    speed = {'Car': 4, 'Truck': 2.6} #Tested and got: car travel speed = 4km/tick, truck speed avg = 2.6km / tick, might change
     reachable_stations = {}
-    max_length = calculate_max_lenght(customer)
-    avalible_nodes = shortest_length(customer['inNode'], graph, max_length=max_length)
+    length = calculate_max_lenght(customer)
+    avalible_nodes = shortest_length(customer['inNode'], graph, max_length=length)
 
     for station in stations:
         if station['inNode'] in avalible_nodes.keys():
             reachable_stations[station['inNode']] = avalible_nodes[station['inNode']]
+
+    rem = []
+    for node in reachable_stations: 
+        end_point_length = shortest_length(node, graph, end_node=customer['toNode'])
+         
+        charge_at_station = length - reachable_stations[node] # to figure out how long it needs to stay there. Also good if I calculate how long it takes to reach so i know not to send people using them at the same time because: too many people, to few chargers or: production cannot handle
+        reach_in_ticks = reachable_stations[node] / speed[customer['type']]
+
+        print(charge_at_station, node)
+        if (customer['maxCharge'] / customer['energyConsumptionPerKm']) < end_point_length:### if customer does not make it to end_point from station it gets removed
+            rem.append(node)
+
+    for node in rem:
+        del reachable_stations[node]
+
+        
+
+
+        
 
     return reachable_stations
 
