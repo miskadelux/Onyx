@@ -6,7 +6,17 @@ def should_move_on_to_next_tick(response):
     return True
 
 def generate_customer_recommendations(map_obj, current_tick):
-    return []
+    return [
+            {
+              "customerId": "0.9",
+              "chargingRecommendations": [
+                {
+                  "nodeId": "7.6",
+                  "chargeTo": 0.786
+                }
+              ]
+            }
+          ]
 
 def generate_tick(map_obj, current_tick):
     return {
@@ -16,11 +26,12 @@ def generate_tick(map_obj, current_tick):
 
 def main():
     api_key = "1546ce68-d586-461a-9534-add93e4daacf"
-    base_url = "http://localhost:8080/api"
+    base_url = "http://localhost:8080/api" #"https://api.considition.com/api"
     map_name = "Turbohill"
 
     client = ConsiditionClient(base_url, api_key)
     map_obj = client.get_map(map_name)
+
 
     if not map_obj:
         print("Failed to fetch map!")
