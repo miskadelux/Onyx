@@ -32,7 +32,6 @@ def print_map_UI(map_obj):
 
 
 
-
 def get_all_customers(map_obj):
     customers = []
 
@@ -50,6 +49,11 @@ def get_all_customers(map_obj):
 
     return customers
 
+def find_customer(id: str, customers: list): ### testing
+    for customer in customers:
+        if customer['id'] == id:
+            return customer
+
 
 def get_all_stations(map_obj):
     stations = []
@@ -61,7 +65,11 @@ def get_all_stations(map_obj):
 
     return stations
     
-
+def calculate_max_lenght(customer):
+    charge = customer['chargeRemaining'] * customer['maxCharge']
+    consumption = customer['energyConsumptionPerKm']
+    return charge / consumption
+    
 def create_graph(map_obj):
     graph = {}
     map = map_obj.copy()
@@ -73,14 +81,9 @@ def create_graph(map_obj):
 
     return graph
 
-
-
-
-
-
 def shortest_lenght(start_node: str, graph, end_node=None, max_lenght=float('inf')) -> float|dict:
     visited = []
-    dist = {}
+    dist = {start_node:0}
 
     pq = [(0, start_node)]
     while end_node not in visited and len(pq) > 0:
@@ -94,17 +97,17 @@ def shortest_lenght(start_node: str, graph, end_node=None, max_lenght=float('inf
                 elif dist[edge[0]] > edge[1] + weight:
                     dist[edge[0]] = edge[1] + weight
                     
-
                 in_pq = False
                 for i in pq:
                     if i[1] == edge[0]:
                         in_pq = True
 
-
                 if edge[0] not in visited and not in_pq:
                     pq.append((edge[1] + weight, edge[0]))
 
-    if end_node != None:
+    if end_node != None and end_node in dist.keys():
         return dist[end_node]
+    elif end_node != None:
+        return None
     else:
         return dist
