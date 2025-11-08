@@ -1,7 +1,7 @@
 import sys
 import time
 from client import ConsiditionClient
-from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, shortest_lenght, calculate_max_lenght, find_customer
+from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, shortest_length, calculate_max_lenght, find_customer, find_nearby_stations
 
 def generate_customer_recommendations(map_obj, current_tick):
     return [
@@ -37,10 +37,11 @@ def main():
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0)],
-        "playToTick": 50
+        "playToTick": 1
     }
 
     game_response = client.post_game(input_payload)
+    stations = get_all_stations(map_obj)
     end_state_map = game_response.get("map")
     s_customers = get_all_customers(map_obj)
     e_customers = get_all_customers(end_state_map)
@@ -55,15 +56,15 @@ def main():
 
     
     cmr = find_customer('0.19', s_customers)
-    lenght = calculate_max_lenght(cmr)
-    k = shortest_lenght('0.0', graph, max_lenght=lenght)
+    l = find_nearby_stations(cmr, map_obj, graph, stations)
+
+    # length = calculate_max_lenght(cmr)
+    # k = shortest_length('0.0', graph, max_length=length)
 
     e_cmr = find_customer('0.19', e_customers)
     
-
     print_map_UI(end_state_map)
-    print(k)
-    print(e_cmr['state'], e_cmr['inNode'])
+    print(l)
             
 
     

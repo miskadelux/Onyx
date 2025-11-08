@@ -1,13 +1,13 @@
 from colorama import Fore, Style
 import client
 
-def print_map_UI(map_obj):
+def print_map_UI(map):
     class tile:
         def __init__(self, color, symbol):
             self.color = color
             self.symbol = symbol
 
-    state = map_obj
+    state = map
 
     map = [[tile(Fore.BLACK, 'O') for i in range(10)] for j in range(10)]
 
@@ -32,16 +32,16 @@ def print_map_UI(map_obj):
 
 
 
-def get_all_customers(map_obj):
+def get_all_customers(map):
     customers = []
 
-    for node in map_obj['nodes']:
+    for node in map['nodes']:
         if len(node['customers']) > 0:
             for customer in node['customers']:
                 customer['inNode'] = node['id']
                 customers.append(customer)
                 
-    for edge in map_obj['edges']:
+    for edge in map['edges']:
         if len(edge['customers']) > 0:
             for customer in edge['customers']:
                 customer['inNode'] = edge['toNode']
@@ -55,10 +55,10 @@ def find_customer(id: str, customers: list): ### testing
             return customer
 
 
-def get_all_stations(map_obj):
+def get_all_stations(map):
     stations = []
 
-    for node in map_obj['nodes']:
+    for node in map['nodes']:
         if node['target']['Type']!= 'Null':
             node['target']['inNode'] = node['id']
             stations.append(node['target'])
@@ -70,9 +70,9 @@ def calculate_max_lenght(customer):
     consumption = customer['energyConsumptionPerKm']
     return charge / consumption
     
-def create_graph(map_obj):
+def create_graph(map):
     graph = {}
-    map = map_obj.copy()
+    map = map.copy()
     for node in map['nodes']:
         graph[node['id']] = []
         for edge in map['edges']:
@@ -81,7 +81,7 @@ def create_graph(map_obj):
 
     return graph
 
-def shortest_lenght(start_node: str, graph, end_node=None, max_lenght=float('inf')) -> float|dict:
+def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf')) -> float|dict:
     visited = []
     dist = {start_node:0}
 
@@ -91,7 +91,7 @@ def shortest_lenght(start_node: str, graph, end_node=None, max_lenght=float('inf
         visited.append(node)
 
         for edge in graph[node]:
-            if edge[1] + weight < max_lenght:
+            if edge[1] + weight < max_length: ### might want to add some legroom in case the drivers don't fint the optimal route?
                 if edge[0] not in dist.keys():
                     dist[edge[0]] = edge[1] + weight
                 elif dist[edge[0]] > edge[1] + weight:
@@ -111,3 +111,15 @@ def shortest_lenght(start_node: str, graph, end_node=None, max_lenght=float('inf
         return None
     else:
         return dist
+    
+def find_nearby_stations(customer, map, graph, stations):
+    reachable_stations = {}
+    max_length = calculate_max_lenght(customer)
+    avalible_nodes = shortest_length(customer['inNode'], graph, max_length=max_length)
+
+    for station in stations:
+        if station['inNode'] in avalible_nodes.keys():
+            reachable_stations[station['inNode']] = avalible_nodes[station['inNode']]
+
+    return reachable_stations
+
