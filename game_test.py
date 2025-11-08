@@ -1,7 +1,7 @@
 import sys
 import time
 from client import ConsiditionClient
-from own_logic import print_map_UI, get_all_customers
+from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, shortest_lenght
 
 def generate_customer_recommendations(map_obj, current_tick):
     return [
@@ -9,7 +9,7 @@ def generate_customer_recommendations(map_obj, current_tick):
               "customerId": "0.9",
               "chargingRecommendations": [
                 {
-                  "nodeId": "7.6",
+                  "nodeId": "7.6", #7.6
                   "chargeTo": 0.786
                 }
               ]
@@ -34,12 +34,10 @@ def main():
         print("Failed to fetch map!")
         sys.exit(1)
 
-    current_tick = generate_tick(map_obj, 0)
-
     input_payload = {
         "mapName": map_name,
-        "ticks": [current_tick],
-        "playToTick": 4
+        "ticks": [generate_tick(map_obj, 0)],
+        "playToTick": 288
     }
 
     game_response = client.post_game(input_payload)
@@ -50,15 +48,22 @@ def main():
         + game_response.get("score", 0)
     )
 
-    print(f"Final score: {final_score}")
+    graph = create_graph(map_obj)
+    k = shortest_lenght('0.0', graph, end_node='1.2')
+    print(k)
+
 
 
     end_state_map = game_response.get("map")
     
     customers = get_all_customers(end_state_map)
-    print(customers)
-    print(len(customers))
-    print_map_UI(end_state_map)
+
+    #print_map_UI(end_state_map)
+
+    #print(f"Final score: {final_score}")
+            
+
+    
 
 if __name__ == "__main__":
     main()
