@@ -1,7 +1,7 @@
 import sys
 import time
 from client import ConsiditionClient
-from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, get_zone_production, find_station
+from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, get_all_zones, find_station
 
 def generate_customer_recommendations(map_obj, current_tick):
     return [
@@ -9,7 +9,7 @@ def generate_customer_recommendations(map_obj, current_tick):
               "customerId": "0.19", #0.14
               "chargingRecommendations": [
                 {
-                  "nodeId": "1.1", #4.1
+                  "nodeId": "1.4", #4.1
                   "chargeTo": 1
                 }
               ]
@@ -34,7 +34,7 @@ def main():
         print("Failed to fetch map!")
         sys.exit(1)
 
-    toTick = 0
+    toTick = 1
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0)],
@@ -42,16 +42,15 @@ def main():
     }
 
     game_response = client.post_game(input_payload)
-    stations = get_all_stations(map_obj)
     end_state_map = game_response.get("map")
-    zones = end_state_map['zones']
+    stations = get_all_stations(end_state_map)
     s_customers = get_all_customers(map_obj)
     e_customers = get_all_customers(end_state_map)
     cmrs_nearby_stations = []
     zone_log = game_response.get('zoneLogs', 0)
     #print(zone_log[20])
-    zones = get_zone_production(zone_log[toTick - 1], zones)
-    #print(zones)
+    zones = get_all_zones(zone_log[toTick - 1], end_state_map)
+    #print(stations)
 
     graph = create_graph(map_obj) 
 
