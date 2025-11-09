@@ -1,5 +1,4 @@
 from colorama import Fore, Style
-import client
 
 def print_map_UI(map):
     class tile:
@@ -60,6 +59,8 @@ def get_all_stations(map):
     for node in map['nodes']:
         if node['target']['Type']!= 'Null':
             node['target']['inNode'] = node['id']
+            node['target']['posX'] = node['posX']
+            node['target']['posY'] = node['posY']
             stations.append(node['target'])
     return stations
 
@@ -136,17 +137,35 @@ def find_avalible_stations(customer, map, graph, stations):
         charge_at_station = length - reachable_stations[node] # to figure out how long it needs to stay there. Also good if I calculate how long it takes to reach so i know not to send people using them at the same time because: too many people, to few chargers or: production cannot handle
         reach_in_ticks = reachable_stations[node] / speed[customer['type']]
 
-        print(charge_at_station, node)
         if (customer['maxCharge'] / customer['energyConsumptionPerKm']) < end_point_length:### if customer does not make it to end_point from station it gets removed
             rem.append(node)
 
     for node in rem:
         del reachable_stations[node]
 
-        
-
-
-        
-
     return reachable_stations
 
+def get_zone_production(zone_log, map, stations): ### updaterar stations med produktion av el info
+    zones_log = zone_log['zones']
+    zone_log = {}
+    for zone in zones_log:
+        zone_log[zone['zoneId']] = [zone['totalProduction'], zone['totalDemand']]
+
+
+
+    zones = {}
+    for zone in map['zones']:
+        zones[zone['id']] = {}
+        zones[zone['id']]['topLeftY'] = zone['topLeftY']
+        zones[zone['id']]['topLeftX'] = zone['topLeftX']
+        zones[zone['id']]['bottomRightX'] = zone['bottomRightX']
+        zones[zone['id']]['bottomRightY'] = zone['bottomRightY']
+
+    for station in stations:
+        for zone in zones:
+            if station['posX'] <= zones[zone]['bottomRightX'] and station['posX'] >= zones[zone]['topLeftX'] and station['posY'] <= zones[zone]['bottomRightY'] and station['posY'] >= zones[zone]['topLeftY']:
+                station['totalProduction'] = zone_log[zone][0] * 1000
+                station['totalDemand'] = zone_log[zone][1] * 1000
+
+    return stations
+    
