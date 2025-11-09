@@ -29,8 +29,6 @@ def print_map_UI(map):
         print()
         print()
 
-
-
 def get_all_customers(map):
     customers = []
 
@@ -52,15 +50,19 @@ def find_customer(id: str, customers: list):
         if customer['id'] == id:
             return customer
 
-
 def get_all_stations(map):
     stations = []
 
     for node in map['nodes']:
-        if node['target']['Type']!= 'Null':
+        if node['target']['Type'] == 'ChargingStation':
             node['target']['inNode'] = node['id']
             node['target']['posX'] = node['posX']
             node['target']['posY'] = node['posY']
+
+            for zone in map['zones']:
+                if node['target']['posX'] <= zone['bottomRightX'] and node['target']['posX'] >= zone['topLeftX'] and node['target']['posY'] <= zone['bottomRightY'] and node['target']['posY'] >= zone['topLeftY']:
+                    node['target']['zoneId'] = zone['id']
+
             stations.append(node['target'])
     return stations
 
@@ -85,7 +87,7 @@ def create_graph(map):
 
     return graph
 
-def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf')) -> float|dict: #Cant predict correctly, not sure why
+def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf')) -> float|dict:
     visited = []
     dist = {start_node:0}
 
@@ -95,7 +97,7 @@ def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf
         visited.append(node)
 
         for edge in graph[node]:
-            if edge[1] + weight < max_length * 1: ### might want to add some legroom in case the drivers don't fint the optimal route?
+            if edge[1] + weight < max_length * 1: ### might want to add some legroom in case the drivers don't find the optimal route
                 if edge[0] not in dist.keys():
                     dist[edge[0]] = edge[1] + dist[node]
                 elif dist[edge[0]] > edge[1] + dist[node]:
@@ -109,8 +111,6 @@ def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf
                 if edge[0] not in visited and not in_pq:
                     pq.append((edge[1] + weight, edge[0]))
 
-        
-
         pq.sort()
 
     if end_node != None and end_node in dist.keys():
@@ -120,7 +120,7 @@ def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf
     else:
         return dist
     
-def find_avalible_stations(customer, map, graph, stations):
+def find_avalible_stations(customer, map, graph, stations, zones):
     speed = {'Car': 4, 'Truck': 2.6} #Tested and got: car travel speed = 4km/tick, truck speed avg = 2.6km / tick, might change
     reachable_stations = {}
     length = calculate_max_lenght(customer)
@@ -128,16 +128,18 @@ def find_avalible_stations(customer, map, graph, stations):
 
     for station in stations:
         if station['inNode'] in avalible_nodes.keys():
-            reachable_stations[station['inNode']] = avalible_nodes[station['inNode']]
+            reachable_stations[station['inNode']] = {}
+            reachable_stations[station['inNode']]['lenght'] = avalible_nodes[station['inNode']]
+            reachable_stations[station['inNode']]['chargeSpeedPerCharger'] = station['chargeSpeedPerCharger']
 
     rem = []
     for node in reachable_stations: 
         end_point_length = shortest_length(node, graph, end_node=customer['toNode'])
-         
-        charge_at_station = length - reachable_stations[node] # to figure out how long it needs to stay there. Also good if I calculate how long it takes to reach so i know not to send people using them at the same time because: too many people, to few chargers or: production cannot handle
-        reach_in_ticks = reachable_stations[node] / speed[customer['type']]
 
-        if (customer['maxCharge'] / customer['energyConsumptionPerKm']) < end_point_length:### if customer does not make it to end_point from station it gets removed
+        ticks_charging = charging_ticks(customer['maxCharge'], customer['energyConsumptionPerKm'], reachable_stations[node], length) #How long it will charge
+        reach_in_ticks = reachable_stations[node]['lenght'] / speed[customer['type']] # When will reach ###assuming speed
+
+        if (customer['maxCharge'] / customer['energyConsumptionPerKm']) < end_point_length:# Removes if endpoint not reachable from station
             rem.append(node)
 
     for node in rem:
@@ -145,27 +147,28 @@ def find_avalible_stations(customer, map, graph, stations):
 
     return reachable_stations
 
-def get_zone_production(zone_log, map, stations): ### updaterar stations med produktion av el info
+def charging_ticks(customer_max_charge, customer_energy_consumption, station_info, length) -> int:
+    length_left = length - station_info['lenght'] # to figure out how long it needs to stay there. Also good if I calculate how long it takes to reach so i know not to send people using them at the same time because: too many people, to few chargers or: production cannot handle
+    charge_at_station = length_left * customer_energy_consumption
+    charge_needed =  customer_max_charge - charge_at_station  #assuming you want filled
+    ticks_charging = int(charge_needed // ((station_info['chargeSpeedPerCharger'] / 60) * 5))
+    return ticks_charging
+
+def get_zone_production(zone_log, zones): # Uppdaterar stations med produktion av el info
     zones_log = zone_log['zones']
     zone_log = {}
     for zone in zones_log:
         zone_log[zone['zoneId']] = [zone['totalProduction'], zone['totalDemand']]
 
+    for zone in zones:
+        zone['totalProduction'] = zone_log[zone['id']][0]
+        zone['totalDemand'] = zone_log[zone['id']][1]
 
+    return zones
 
-    zones = {}
-    for zone in map['zones']:
-        zones[zone['id']] = {}
-        zones[zone['id']]['topLeftY'] = zone['topLeftY']
-        zones[zone['id']]['topLeftX'] = zone['topLeftX']
-        zones[zone['id']]['bottomRightX'] = zone['bottomRightX']
-        zones[zone['id']]['bottomRightY'] = zone['bottomRightY']
-
-    for station in stations:
-        for zone in zones:
-            if station['posX'] <= zones[zone]['bottomRightX'] and station['posX'] >= zones[zone]['topLeftX'] and station['posY'] <= zones[zone]['bottomRightY'] and station['posY'] >= zones[zone]['topLeftY']:
-                station['totalProduction'] = zone_log[zone][0] * 1000
-                station['totalDemand'] = zone_log[zone][1] * 1000
-
-    return stations
-    
+def check_for_juice(customers) -> dict:
+    ran_out = {}
+    for customer in customers:
+        if customer['state'] == 'RanOutOfJuice':
+            ran_out[customer['id']] = customer['inNode']
+    return ran_out

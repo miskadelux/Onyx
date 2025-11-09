@@ -1,7 +1,7 @@
 import sys
 import time
 from client import ConsiditionClient
-from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, get_zone_production
+from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, get_zone_production, find_station
 
 def generate_customer_recommendations(map_obj, current_tick):
     return [
@@ -34,21 +34,24 @@ def main():
         print("Failed to fetch map!")
         sys.exit(1)
 
+    toTick = 0
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0)],
-        "playToTick":  21
+        "playToTick":  toTick
     }
 
     game_response = client.post_game(input_payload)
     stations = get_all_stations(map_obj)
     end_state_map = game_response.get("map")
+    zones = end_state_map['zones']
     s_customers = get_all_customers(map_obj)
     e_customers = get_all_customers(end_state_map)
     cmrs_nearby_stations = []
     zone_log = game_response.get('zoneLogs', 0)
     #print(zone_log[20])
-    stations = get_zone_production(zone_log[0], map_obj, stations)
+    zones = get_zone_production(zone_log[toTick - 1], zones)
+    #print(zones)
 
     graph = create_graph(map_obj) 
 
@@ -60,7 +63,7 @@ def main():
 
     
     cmr = find_customer('0.19', e_customers)
-    l = find_avalible_stations(cmr, map_obj, graph, stations)
+    l = find_avalible_stations(cmr, map_obj, graph, stations, zones)
     #print_map_UI(end_state_map)
 
     # length = calculate_max_lenght(cmr)
@@ -70,6 +73,7 @@ def main():
     print_map_UI(end_state_map)
     #print(zone_kw[45]['zones'][0])
     print(cmr['state'], cmr['inNode'], cmr['toNode'], cmr['chargeRemaining'])
+    print(find_station('1.1', stations)['chargeSpeedPerCharger'])
     print(l)
 
 
@@ -77,7 +81,7 @@ def main():
     #print(final_score)
             
 
-    
+    ### fixa så att alla i samma zone har samma referens, så om du ändrar på en, så ändras alla!
 
 if __name__ == "__main__":
     main()
