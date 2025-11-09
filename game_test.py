@@ -6,10 +6,10 @@ from own_logic import print_map_UI, get_all_customers, get_all_stations, create_
 def generate_customer_recommendations(map_obj, current_tick):
     return [
             {
-              "customerId": "0.19", #0.14
+              "customerId": "0.14", #0.14
               "chargingRecommendations": [
                 {
-                  "nodeId": "1.4", #4.1
+                  "nodeId": "3.1", #4.1
                   "chargeTo": 1
                 }
               ]
@@ -34,7 +34,7 @@ def main():
         print("Failed to fetch map!")
         sys.exit(1)
 
-    toTick = 1
+    toTick = 31
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0)],
@@ -50,7 +50,7 @@ def main():
     zone_log = game_response.get('zoneLogs', 0)
     #print(zone_log[20])
     zones = get_all_zones(zone_log[toTick - 1], end_state_map)
-    #print(stations)
+    print(s_customers)
 
     graph = create_graph(map_obj) 
 
@@ -60,8 +60,7 @@ def main():
         + game_response.get("score", 0)
     )
 
-    
-    cmr = find_customer('0.19', e_customers)
+    cmr = find_customer('0.9', e_customers)
     l = find_avalible_stations(cmr, map_obj, graph, stations, zones)
     #print_map_UI(end_state_map)
 
@@ -71,10 +70,10 @@ def main():
     
     print_map_UI(end_state_map)
     #print(zone_kw[45]['zones'][0])
-    print(cmr['state'], cmr['inNode'], cmr['toNode'], cmr['chargeRemaining'])
+    print(cmr['state'], cmr['departureTick'], cmr['toNode'], cmr['chargeRemaining'])
     print(find_station('1.1', stations)['chargeSpeedPerCharger'])
     print(l)
-
+    print(len(e_customers))
 
 
     #print(final_score)

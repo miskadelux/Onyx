@@ -1,5 +1,6 @@
 from colorama import Fore, Style
 import math
+import json
 
 def print_map_UI(map):
     class tile:
@@ -31,18 +32,21 @@ def print_map_UI(map):
         print()
 
 def get_all_customers(map):
+    customer_speeds = load_speed()
     customers = []
 
     for node in map['nodes']:
         if len(node['customers']) > 0:
             for customer in node['customers']:
                 customer['inNode'] = node['id']
+                customer['speed'] = customer_speeds[customer['id']]
                 customers.append(customer)
                 
     for edge in map['edges']:
         if len(edge['customers']) > 0:
             for customer in edge['customers']:
                 customer['inNode'] = edge['toNode']
+                customer['speed'] = customer_speeds[customer['id']]
                 customers.append(customer)
     return customers
 
@@ -190,3 +194,8 @@ def check_for_juice(customers) -> dict:
         if customer['state'] == 'RanOutOfJuice':
             ran_out[customer['id']] = customer['inNode']
     return ran_out
+
+def load_speed() -> dict:
+    with open('data/speeds.txt', 'r') as f:
+        customer_speeds = json.load(f)
+    return customer_speeds

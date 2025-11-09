@@ -1,0 +1,74 @@
+TRUCK
+1. 0.19
+100 - 96,48666 
+- 3,51334
+
+96,48666 - 92,97331
+- 3,51335
+
+2- ticks to node- 1 tick to edge
+
+2. 0.19
+64.798117 - 61.284775
+- 3.513342
+
+2 - ticks to node - 1 tick to edge
+
+3. 0.13 ### Räknade med fel max charge
+56.42974400000001 - 53.516589999999994
+- 2.913154
+
+53.516589999999994 - 50.60344
+- 2.91315
+
+2 - ticks to node 1 tick to edge
+
+
+47.274685 - 44.413367
+- 2.861318
+
+44.413367 - 41.500214
+- 2.913153
+
+4. 0.14
+100 - 95.324457
+- 4.675543
+
+95.324457 - 90.648913
+- 4.675544
+
+2 - ticks to node 1 tick to edge
+
+27.946207
+
+summary:
+constant speed for the same customers
+speed varies between customers
+the starting node adds 1 tick, then every node adds 3 ticks besides the driving, and the last node adds 2 ticks (3 * (numNodes- 1)) extra ticks
+the same vehicle type consumes the same, but it is a variable I can use directly
+
+solution:
+make a script runs the game once to figure out every customers speed, save it and use it in the simulation
+
+
+
+
+0.21985039 * 61.874645 - 0.19140105 * 61.874645
+
+1.76029281298 / 0.2
+
+
+0.34116608 * 61.874645 - 0.31031406 * 61.874645
+
+1.90895778503 / 0.2
+
+9.54478892515
+
+
+0.31031406 * 61.874645 - 0.27946207 * 61.874645
+
+
+
+
+
+0.19140105  * 61.874645 - 0.16054904 * 61.874645
