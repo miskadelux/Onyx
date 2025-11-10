@@ -44,7 +44,7 @@ TRUCK
 summary:
 constant speed for the same customers
 speed varies between customers
-the starting node adds 1 tick, then every node adds 3 ticks besides the driving, and the last node adds 2 ticks (3 * (numNodes- 1)) extra ticks
+the starting node adds 1 tick, then every node adds 3 ticks besides the driving, and the last node adds 1 ticks (3 * (numNodes - 1) + 2) extra ticks
 the same vehicle type consumes the same, but it is a variable I can use directly
 
 solution:
