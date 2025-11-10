@@ -34,7 +34,7 @@ def main():
         print("Failed to fetch map!")
         sys.exit(1)
 
-    toTick = 54
+    toTick = 288
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0)],
@@ -48,7 +48,7 @@ def main():
     e_customers = get_all_customers(end_state_map)
     cmrs_nearby_stations = []
     zone_log = game_response.get('zoneLogs', 0)
-    #print(zone_log[20])           91.3369495
+    #print(zone_log[20]
     zones = get_all_zones(zone_log[toTick - 1], end_state_map)
     #print(s_customers)
 

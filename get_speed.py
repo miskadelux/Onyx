@@ -1,7 +1,7 @@
 import sys
 import json
 from client import ConsiditionClient
-from own_logic import get_all_customers, find_customer
+from own_logic import get_all_customers_without_speed, find_customer
 
 def main():
     api_key = "1546ce68-d586-461a-9534-add93e4daacf"
@@ -28,7 +28,7 @@ def main():
 
         game_response = client.post_game(input_payload)
         end_map = game_response.get("map")
-        e_customers = get_all_customers(end_map)
+        e_customers = get_all_customers_without_speed(end_map)
         for customer in e_customers:
             if customer['state'] == 'Traveling':
                 if not customer['id'] in delta_charge.keys():

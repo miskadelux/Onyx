@@ -38,15 +38,33 @@ def get_all_customers(map):
     for node in map['nodes']:
         if len(node['customers']) > 0:
             for customer in node['customers']:
+                if customer['id'] in customer_speeds.keys(): ### Det var någon patch en förare med en viss id spawnade in ifall man skickade rekomendation men sedan försvann. Tror det var en bugg. Detta löser buggen tills de hittar buggen!
+                    customer['inNode'] = node['id']
+                    customer['speed'] = customer_speeds[customer['id']]
+                    customers.append(customer)
+                
+    for edge in map['edges']:
+        if len(edge['customers']) > 0:
+            for customer in edge['customers']:
+                if customer['id'] in customer_speeds.keys():### Det var någon patch en förare med en viss id spawnade in ifall man skickade rekomendation men sedan försvann. Tror det var en bugg. Detta löser buggen tills de hittar buggen!
+                    customer['inNode'] = node['id']
+                    customer['speed'] = customer_speeds[customer['id']]
+                    customers.append(customer)
+    return customers
+
+def get_all_customers_without_speed(map):
+    customers = []
+
+    for node in map['nodes']:
+        if len(node['customers']) > 0:
+            for customer in node['customers']:
                 customer['inNode'] = node['id']
-                customer['speed'] = customer_speeds[customer['id']]
                 customers.append(customer)
                 
     for edge in map['edges']:
         if len(edge['customers']) > 0:
             for customer in edge['customers']:
                 customer['inNode'] = edge['toNode']
-                customer['speed'] = customer_speeds[customer['id']]
                 customers.append(customer)
     return customers
 
