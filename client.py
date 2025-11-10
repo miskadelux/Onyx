@@ -12,6 +12,9 @@ class ConsiditionClient:
 
     def get_map(self, map_name: str):
         return self.request("GET", "/map", params={"mapName": map_name})
+    
+    def get_config(self, map_name: str):
+        return self.request("GET", "/map-config", params={"mapName": map_name})
 
     def request(self, method: str, endpoint: str, **kwargs):
         url = f"{self.base_url}{endpoint}"

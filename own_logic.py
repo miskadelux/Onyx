@@ -2,7 +2,7 @@ from colorama import Fore, Style
 import math
 import json
 
-def print_map_UI(map):
+def print_map_UI(map, config):
     class tile:
         def __init__(self, color, symbol):
             self.color = color
@@ -10,7 +10,7 @@ def print_map_UI(map):
 
     state = map
 
-    map = [[tile(Fore.BLACK, 'O') for i in range(10)] for j in range(10)]
+    map = [[tile(Fore.BLACK, 'O') for i in range(config['dimX'])] for j in range(config['dimY'])]
 
     for node in state['nodes']:
         if len(node['customers']) > 0:
@@ -144,11 +144,10 @@ def shortest_length(start_node: str, graph, end_node=None, max_length=float('inf
     else:
         return dist
     
-def find_avalible_stations(customer, map, graph, stations, zones):
+def find_avalible_stations(customer, graph, stations, zones):
     reachable_stations = {}
     length = calculate_max_length(customer)
     avalible_nodes = shortest_length(customer['inNode'], graph, max_length=length)
-    print(avalible_nodes)
 
     for station in stations:
         if station['inNode'] in avalible_nodes.keys():
@@ -165,22 +164,23 @@ def find_avalible_stations(customer, map, graph, stations, zones):
 
         reachable_stations[node]['ticksToCharge'] = ticks_charging
         reachable_stations[node]['ticksToReach'] = reach_in_ticks
-        
 
-        # if reach_in_ticks in reachable_stations[node]['bookings'].keys() and reachable_stations[node]['bookings'][reach_in_ticks] == station['totalAmountOfChargers'] - station['totalAmountOfBrokenChargers']: # removes if bookings of chargers are full on arrival
-        #     rem.append(node)
+        ### What to do if they become full after arrival?
+        if reach_in_ticks + customer['departureTick'] in reachable_stations[node]['bookings'].keys() and reachable_stations[node]['bookings'][reach_in_ticks + customer['departureTick']] == station['totalAmountOfChargers'] - station['totalAmountOfBrokenChargers']: # removes if bookings of chargers are full on arrival
+            rem.append(node)
 
-        # for zone in zones:
-        #     if reachable_stations[node]['zoneId'] == zone['id']:
-        #         if reach_in_ticks in zone['bookings'].keys() and zone['bookings'][reach_in_ticks] + reachable_stations['chargeSpeedPerCharger'] > zone['totalProduction'] and node not in rem: # removes if bookings of totalDemand are full on arrival
-        #             rem.append(node)
-        #         break
+        ### What to do if they become full after arrival?
+        for zone in zones:
+            if reachable_stations[node]['zoneId'] == zone['id']:
+                if reach_in_ticks  + customer['departureTick'] in zone['bookings'].keys() and zone['bookings'][reach_in_ticks + customer['departureTick']] + reachable_stations['chargeSpeedPerCharger'] > zone['totalProduction'] and node not in rem: # removes if bookings of totalDemand are full on arrival
+                    rem.append(node)
+                break
 
         if (customer['maxCharge'] / customer['energyConsumptionPerKm']) < end_point_length and node not in rem:# Removes if endpoint not reachable from station
             rem.append(node)
 
-    # for node in rem:
-    #     del reachable_stations[node]
+    for node in rem:
+        del reachable_stations[node]
 
     return reachable_stations
 
@@ -189,7 +189,6 @@ def charging_ticks(customer_max_charge, customer_energy_consumption, station_inf
     charge_at_station = length_left * customer_energy_consumption
     charge_needed =  customer_max_charge - charge_at_station  #assuming you want filled
     ticks_charging = math.ceil(charge_needed / ((station_info['chargeSpeedPerCharger'] / 60) * 5)) # might be better to // and + 1
-    #ticks_charging += 1 ### margin
     
     return ticks_charging
 
