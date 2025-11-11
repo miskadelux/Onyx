@@ -5,10 +5,23 @@ from own_logic import print_map_UI, get_all_customers, get_all_stations, create_
 def generate_customer_recommendations(map_obj, current_tick):
     return [
             {
-              "customerId": "0.121",
+              "customerId": "0.123",
               "chargingRecommendations": [
                 {
-                  "nodeId": '2.7', # 7.13
+                  "nodeId": '14.10', # 7.13
+                  "chargeTo": 1
+                }
+              ]
+            }
+          ]
+
+def generate_customer_recommendationsa(map_obj, current_tick):
+    return [
+            {
+              "customerId": "0.123",
+              "chargingRecommendations": [
+                {
+                  "nodeId": '14.7', # 7.13
                   "chargeTo": 1
                 }
               ]
@@ -19,6 +32,11 @@ def generate_tick(map_obj, current_tick):
     return {
         "tick": current_tick,
         "customerRecommendations": generate_customer_recommendations(map_obj, current_tick),
+    }
+def generate_ticka(map_obj, current_tick):
+    return {
+        "tick": current_tick,
+        "customerRecommendations": generate_customer_recommendationsa(map_obj, current_tick),
     }
 
 def main():
@@ -35,10 +53,10 @@ def main():
         print("Failed to fetch map!")
         sys.exit(1)
 
-    toTick = 0
+    toTick = 128
     input_payload = {
         "mapName": map_name,
-        "ticks": [generate_tick(map_obj, 0)],
+        "ticks": [generate_tick(map_obj, 0), generate_ticka(map_obj, 85)],
         "playToTick":  toTick
     }
 
@@ -57,7 +75,7 @@ def main():
         + game_response.get("score", 0)
     )
 
-    cmr = find_customer('0.121', e_customers)
+    cmr = find_customer('0.123', e_customers)
     l = find_avalible_stations(cmr, graph, stations, zones, zone_logs)
     #choice = make_choice(l)
     # # rec = create_recommendation(choice['inNode'], cmr['id'], 1)
@@ -65,7 +83,7 @@ def main():
     #print_map_UI(end_state_map)
 
 
-    #print_map_UI(end_state_map, config)
+    print_map_UI(end_state_map, config)
 
     print(cmr['state'], cmr['inNode'], cmr['toNode'], cmr['departureTick'], 'maxCharge: ', cmr['maxCharge'], 'chargeRemaining: ', cmr['chargeRemaining'])
 
@@ -79,7 +97,7 @@ def main():
 
 
 
-    print(final_score)
+    #print(final_score)
 
 if __name__ == "__main__":
     main()

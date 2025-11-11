@@ -1,25 +1,37 @@
 import sys
 from client import ConsiditionClient
-from own_logic import get_all_customers, get_all_stations, create_graph, find_avalible_stations, get_all_zones, make_choice, create_recommendation, load_total_production, save_ticks, check_for_juice
+from own_logic import get_all_customers, get_all_stations, create_graph, find_avalible_stations, get_all_zones, make_choice, create_recommendation, load_total_production, save_ticks
 
 def generate_customer_recommendations(end_map, customers_with_recommendation, graph, stations, zones, zone_logs):
     customers = get_all_customers(end_map)
     recommendations = []
-    i = 0
 
     for customer in customers:
-        
         if customer['id'] not in customers_with_recommendation:
             reachable_stations = find_avalible_stations(customer, graph, stations, zones, zone_logs)
+            customer['reachableStations'] = reachable_stations
 
-            if len(reachable_stations) != 0:
-                stations_choice = make_choice(reachable_stations, customer, graph)
-                recommendations.append(create_recommendation(stations_choice['inNode'], customer['id'], 1))
-                customers_with_recommendation.append(customer['id'])
-            else:
-                print(customer['id'], 'did not find an avalible station') # 0.73
-                i += 1
-    print(i, ' didnt find a station')
+    customerWithLeast = customers[0]
+
+    for customer in customers:
+        if len(customerWithLeast['reachableStations']) > len(customer['reachableStations']):
+            customerWithLeast = customer
+    
+    
+    for c in customers:
+        print(c)
+    print(customerWithLeast)
+
+
+
+
+            # if len(reachable_stations) != 0:
+            #     stations_choice = make_choice(reachable_stations, customer, graph)
+            #     recommendations.append(create_recommendation(stations_choice['inNode'], customer['id'], 1))
+            #     customers_with_recommendation.append(customer['id'])
+            # else:
+            #     print(customer['id'], 'did not find an avalible station') # 0.73
+
 
     return recommendations
 
@@ -60,20 +72,17 @@ def main():
     # 9760 highscore
     game_response = client.post_game(input_payload)
     end_map = game_response.get("map", 0)
-    game_id = game_response.get('gameId', 0)
     
 
 
-    c = get_all_customers(end_map)
-    k = check_for_juice(c)
-    print(len(k), 'ran out of juice')
 
 
 
 
 
 
-    save_ticks([ticks])
+
+    #save_ticks(ticks)
 
 
 
@@ -81,6 +90,7 @@ def main():
     # koppla bookningsystemet
     # gör så att nya customers också får en rekkomendation, sker inte just nu då jag bar ger recomendationer till folk på tick 1
     # optimera valet
+    # Ta med folk som inte klarar det från första charging station, (de kan charga två gånger)
 
 
 
@@ -90,8 +100,7 @@ def main():
     )
 
 
-    print(final_score)
-    
+    print('Final score:', final_score)
 
 if __name__ == "__main__":
     main()

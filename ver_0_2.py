@@ -85,6 +85,17 @@ def main():
                 "ticks": [*good_ticks, current_tick],
             }
     
+    # koppla bookningsystemet
+    # Prioritera personer med minst val när jag implementerat bookningsystemet
+    # se om folk kan hitta flera chargingstations de kan nå för att nå slutdestination
+    # optimera valet
+
+
+    c = get_all_customers(updated_map)
+    k = check_for_juice(c)
+    print(len(k), 'ran out of juice')
+
+    save_ticks(input_payload["ticks"])
 
     print(f"Final score: {final_score}")
 
