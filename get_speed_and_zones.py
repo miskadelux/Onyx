@@ -45,5 +45,10 @@ def main():
     with open('data/speeds.txt', 'w') as f:
         json.dump(customer_speeds, f)
 
+    zone_log = game_response.get('zoneLogs', 0)
+
+    with open('data/totalProduction.txt', 'w') as f:
+        json.dump(zone_log, f)
+
 if __name__ == "__main__":
     main()

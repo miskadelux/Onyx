@@ -1,15 +1,14 @@
 import sys
-import time
 from client import ConsiditionClient
-from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, get_all_zones, find_station
+from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, get_all_zones, find_station, make_choice, create_recommendation, load_total_production
 
 def generate_customer_recommendations(map_obj, current_tick):
     return [
             {
-              "customerId": "0.89",
+              "customerId": "0.121",
               "chargingRecommendations": [
                 {
-                  "nodeId": '0.1',
+                  "nodeId": '2.7', # 7.13
                   "chargeTo": 1
                 }
               ]
@@ -27,14 +26,16 @@ def main():
     base_url = "http://localhost:8080/api" #"https://api.considition.com/api"
     map_name = "Clutchfield"
 
+    zone_logs = load_total_production()
     client = ConsiditionClient(base_url, api_key)
     map_obj = client.get_map(map_name)
+    zones = get_all_zones(zone_logs[1], map_obj['zones'])
 
     if not map_obj:
         print("Failed to fetch map!")
         sys.exit(1)
 
-    toTick = 288
+    toTick = 0
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0)],
@@ -48,9 +49,6 @@ def main():
     s_customers = get_all_customers(map_obj)
     e_customers = get_all_customers(end_state_map)
     cmrs_nearby_stations = []
-    zone_log = game_response.get('zoneLogs', 0)
-    #print(zone_log[20])
-    zones = get_all_zones(zone_log[toTick - 1], end_state_map)
     #print(s_customers)
 
     graph = create_graph(map_obj) 
@@ -59,19 +57,26 @@ def main():
         + game_response.get("score", 0)
     )
 
-    cmr = find_customer('0.89', e_customers)
-    l = find_avalible_stations(cmr, graph, stations, zones)
+    cmr = find_customer('0.121', e_customers)
+    l = find_avalible_stations(cmr, graph, stations, zones, zone_logs)
+    #choice = make_choice(l)
+    # # rec = create_recommendation(choice['inNode'], cmr['id'], 1)
+    # print(rec)
     #print_map_UI(end_state_map)
 
-    # length = calculate_max_lenght(cmr)
-    # k = shortest_length('0.0', graph, max_length=length)
-    #print(end_state_map['zones'])
-    
-    print_map_UI(end_state_map, config)
-    #print(zone_kw[45]['zones'][0])
-    print(cmr['state'], cmr['inNode'], cmr['toNode'], cmr['departureTick'])
-    print(l)
-    #print(len(e_customers))
+
+    #print_map_UI(end_state_map, config)
+
+    print(cmr['state'], cmr['inNode'], cmr['toNode'], cmr['departureTick'], 'maxCharge: ', cmr['maxCharge'], 'chargeRemaining: ', cmr['chargeRemaining'])
+
+    for i in l:
+        print(i)
+
+
+
+
+    #print(stations)
+
 
 
     print(final_score)
