@@ -1,6 +1,6 @@
 import sys
 from client import ConsiditionClient
-from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, get_all_zones, find_station, make_choice, create_recommendation, load_total_production
+from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, get_all_zones, find_station, make_choice, create_recommendation, load_total_production, find_avalible_multi_stations
 
 def generate_customer_recommendations(map_obj, current_tick):
     return [
@@ -52,8 +52,8 @@ def main():
     if not map_obj:
         print("Failed to fetch map!")
         sys.exit(1)
-
-    toTick = 128
+    #83, 
+    toTick = 288
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0), generate_ticka(map_obj, 85)],
@@ -76,7 +76,7 @@ def main():
     )
 
     cmr = find_customer('0.123', e_customers)
-    l = find_avalible_stations(cmr, graph, stations, zones, zone_logs)
+    l = find_avalible_multi_stations(cmr, graph, stations, zones, zone_logs)
     #choice = make_choice(l)
     # # rec = create_recommendation(choice['inNode'], cmr['id'], 1)
     # print(rec)
@@ -97,7 +97,7 @@ def main():
 
 
 
-    #print(final_score)
+    print(final_score)
 
 if __name__ == "__main__":
     main()

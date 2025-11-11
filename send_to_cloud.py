@@ -12,7 +12,7 @@ def main():
         "mapName": map_name,
         "ticks": ticks,
     }
-    # 10223 highscore # id 019a7444-daaf-7249-8975-06ddf4b4a748
+    # 10289 highscore # id 019a7471-1fac-7644-8005-40cc8636a7ce
 
     game_response = client.post_game(input_payload)
     game_id = game_response.get('gameId', 0)

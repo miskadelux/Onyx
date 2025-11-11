@@ -161,12 +161,12 @@ def find_avalible_stations(customer, graph, stations, zones, zones_log):
         ticks_charging = charging_ticks(customer['maxCharge'], customer['energyConsumptionPerKm'], reachable_stations[node], length) #How long it will charge
         reach_in_ticks = math.ceil(reachable_stations[node]['length'] / customer['speed']) + (3 * (reachable_stations[node]['numNodesTo']- 1) + 2) #Amount of ticks, mostly accurate, I think might differ sometimes by -1 +2 max (from experiment) I think because some edges are weird
 
-        reachable_stations[node]['ticksToCharge'] = ticks_charging
-        reachable_stations[node]['ticksToReach'] = reach_in_ticks
+        customer['ticksToCharge'] = ticks_charging
+        customer['ticksToReach'] = reach_in_ticks
 
-        # ### What to do if they become full after arrival?
-        # if reach_in_ticks + customer['departureTick'] in reachable_stations[node]['bookings'].keys() and reachable_stations[node]['bookings'][reach_in_ticks + customer['departureTick']] == station['totalAmountOfChargers'] - station['totalAmountOfBrokenChargers']: # removes if bookings of chargers are full on arrival
-        #     rem.append(node)
+        ### What to do if they become full after arrival?
+        if reach_in_ticks + customer['departureTick'] in reachable_stations[node]['bookings'].keys() and reachable_stations[node]['bookings'][reach_in_ticks + customer['departureTick']] == station['totalAmountOfChargers'] - station['totalAmountOfBrokenChargers']: # removes if bookings of chargers are full on arrival
+            rem.append(node)
 
         # ### What to do if they become full after arrival?
         # for zone in zones:
@@ -243,7 +243,7 @@ def make_choice(reachable_stations, customer, graph):
     #print('starting:',chosen_station)
     #print('customer:',customer)
     
-    for station in reachable_stations: # Kortaste sträckan till stationen #### Måste ha kortaste sträckan till endpoint
+    for station in reachable_stations: # Kortaste sträckan till endpoint
         if reachable_stations[station]['length'] + shortest_length(reachable_stations[station]['inNode'], graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm'])['length'] < chosen_station['length'] + shortest_length(chosen_station['inNode'], graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm'])['length']:
             chosen_station = reachable_stations[station]
     
@@ -264,3 +264,42 @@ def create_recommendation(station_id, customer_id, charge_to):
             ]
             }
         
+def find_avalible_multi_stations(customer, graph, stations, zones, zones_log):
+    reachable_stations = {}
+    length = calculate_max_length(customer)
+    avalible_nodes = shortest_length(customer['inNode'], graph, max_length=length)
+
+    for station in stations:
+        if station['inNode'] in avalible_nodes.keys():
+            reachable_stations[station['inNode']] = station
+            reachable_stations[station['inNode']]['length'] = avalible_nodes[station['inNode']]['length']
+            reachable_stations[station['inNode']]['numNodesTo'] = avalible_nodes[station['inNode']]['numNodesTo']
+
+    rem = []
+    for node in reachable_stations: 
+
+        ticks_charging = charging_ticks(customer['maxCharge'], customer['energyConsumptionPerKm'], reachable_stations[node], length) #How long it will charge
+        reach_in_ticks = math.ceil(reachable_stations[node]['length'] / customer['speed']) + (3 * (reachable_stations[node]['numNodesTo']- 1) + 2) #Amount of ticks, mostly accurate, I think might differ sometimes by -1 +2 max (from experiment) I think because some edges are weird
+
+        reachable_stations[node]['ticksToCharge'] = ticks_charging
+        reachable_stations[node]['ticksToReach'] = reach_in_ticks
+
+        # ### What to do if they become full after arrival?
+        # if reach_in_ticks + customer['departureTick'] in reachable_stations[node]['bookings'].keys() and reachable_stations[node]['bookings'][reach_in_ticks + customer['departureTick']] == station['totalAmountOfChargers'] - station['totalAmountOfBrokenChargers']: # removes if bookings of chargers are full on arrival
+        #     rem.append(node)
+
+        # ### What to do if they become full after arrival?
+        # for zone in zones:
+        #     if reachable_stations[node]['zoneId'] == zone['id']:
+        #         if reach_in_ticks  + customer['departureTick'] in zone['bookings'].keys():
+        #             for i in zones_log[reach_in_ticks  + customer['departureTick']]['zones']:
+        #                 if zones_log[reach_in_ticks  + customer['departureTick']]['zones'][i]['zoneId'] == reachable_stations[node]['zoneId'] and zone['bookings'][reach_in_ticks + customer['departureTick']] + reachable_stations['chargeSpeedPerCharger'] > zones_log[reach_in_ticks  + customer['departureTick']]['zones'][i] and node not in rem: # removes if bookings of totalDemand are full on arrival
+        #                     rem.append(node)
+        #         break
+
+
+
+    for node in rem:
+        del reachable_stations[node]
+
+    return reachable_stations
