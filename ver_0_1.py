@@ -73,7 +73,7 @@ def main():
 
 
 
-    save_ticks([ticks])
+    #save_ticks([ticks])
 
 
 

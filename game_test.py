@@ -53,7 +53,7 @@ def main():
         print("Failed to fetch map!")
         sys.exit(1)
     #83, 
-    toTick = 288
+    toTick = 140
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0), generate_ticka(map_obj, 85)],
@@ -87,8 +87,10 @@ def main():
 
     print(cmr['state'], cmr['inNode'], cmr['toNode'], cmr['departureTick'], 'maxCharge: ', cmr['maxCharge'], 'chargeRemaining: ', cmr['chargeRemaining'])
 
-    for i in l:
-        print(i)
+    print(l)
+
+    # for i in l:
+    #     print(i)
 
 
 
