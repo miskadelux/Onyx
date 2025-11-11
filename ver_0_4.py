@@ -130,7 +130,7 @@ def main():
             }
     
     # Prioritera personer med minst val när jag implementerat bookningsystemet
-    # se om folk kan hitta flera chargingstations de kan nå för att nå slutdestination # typ implementerat fast de åker bara till 1 mer
+    # se om folk kan hitta flera chargingstations de kan nå för att nå slutdestination # typ implementerat fast de åker bara till 1 mer och dör efter det
     # optimera valet
 
 
