@@ -32,7 +32,7 @@ def generate_tick(current_tick, end_map, customers_with_recommendation, graph, s
 def main():
     api_key = "1546ce68-d586-461a-9534-add93e4daacf"
     base_url = "http://localhost:8080/api"
-    map_name = "Clutchfield"
+    map_name = "Batterytown"
 
     zone_logs = load_total_production()
     client = ConsiditionClient(base_url, api_key)

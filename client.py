@@ -18,10 +18,14 @@ class ConsiditionClient:
 
     def request(self, method: str, endpoint: str, **kwargs):
         url = f"{self.base_url}{endpoint}"
-        response = requests.request(method, url, headers=self.headers, verify=True, **kwargs)
-        # print()
-        # print(f"DEBUG: {response.status_code} {url}")
-        # print("Response text:", response.text)
-        response.raise_for_status()
-        return response.json()
+        try:
+            response = requests.request(method, url, headers=self.headers, verify=False, **kwargs)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error making request to {url}: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                print(f"Error response status: {e.response.status_code}")
+                print(f"Error response body: {e.response.text}")
+            raise
     

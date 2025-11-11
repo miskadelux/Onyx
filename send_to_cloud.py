@@ -12,8 +12,8 @@ def main():
         "mapName": map_name,
         "ticks": ticks,
     }
-    # 12843 highscore # id 019a74e8-ceda-746e-af85-f0dcd5cdb9c2
-    # 16193 # id 019a74e3-da5b-7294-b076-8a3b526ebd05
+    # 15558 highscore # id 019a74fa-82d9-7cec-a703-0e4d92dd5faf # Clutchfield
+    # 17225 highscore# id 019a74f8-899b-737d-ab79-088728cd8a73 # Clutchfield
 
     game_response = client.post_game(input_payload)
     game_id = game_response.get('gameId', 0)
