@@ -164,18 +164,17 @@ def find_avalible_stations(customer, graph, stations, zones, zones_log):
         customer['ticksToCharge'] = ticks_charging
         customer['ticksToReach'] = reach_in_ticks
 
-        ### What to do if they become full after arrival?
+        #What happens if they become full? - bug
         if reach_in_ticks + customer['departureTick'] in reachable_stations[node]['bookings'].keys() and reachable_stations[node]['bookings'][reach_in_ticks + customer['departureTick']] == station['totalAmountOfChargers'] - station['totalAmountOfBrokenChargers']: # removes if bookings of chargers are full on arrival
             rem.append(node)
 
-        # ### What to do if they become full after arrival?
-        # for zone in zones:
-        #     if reachable_stations[node]['zoneId'] == zone['id']:
-        #         if reach_in_ticks  + customer['departureTick'] in zone['bookings'].keys():
-        #             for i in zones_log[reach_in_ticks  + customer['departureTick']]['zones']:
-        #                 if zones_log[reach_in_ticks  + customer['departureTick']]['zones'][i]['zoneId'] == reachable_stations[node]['zoneId'] and zone['bookings'][reach_in_ticks + customer['departureTick']] + reachable_stations['chargeSpeedPerCharger'] > zones_log[reach_in_ticks  + customer['departureTick']]['zones'][i] and node not in rem: # removes if bookings of totalDemand are full on arrival
-        #                     rem.append(node)
-        #         break
+        #What happens if they become full? - bug
+        for zone in zones:
+            if reachable_stations[node]['zoneId'] == zone['id'] and reach_in_ticks + customer['departureTick'] in zone['bookings'].keys():
+                for zone_ in zones_log[reach_in_ticks  + customer['departureTick']]['zones']:
+                    if zone_['zoneId'] == reachable_stations[node]['zoneId'] and zone['bookings'][reach_in_ticks + customer['departureTick']] + reachable_stations[node]['chargeSpeedPerCharger'] > zone_['totalProduction'] and node not in rem: # removes if bookings of totalDemand are full on arrival
+                        rem.append(node)
+                break
 
 
         if shortest_length(node, graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm']) == None and node not in rem:# Removes if endpoint not reachable from station
