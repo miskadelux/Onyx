@@ -85,7 +85,7 @@ def main():
     customers_with_recommendation = []
 
 
-    final_score = 0
+    final_score = None
     good_ticks = []
 
     current_tick = generate_tick(0, start_map, customers_with_recommendation, graph, stations, zones, zone_logs)
@@ -101,7 +101,7 @@ def main():
             game_response = client.post_game(input_payload)
 
             # Sum the scores directly (assuming they are numbers)
-            final_score = game_response.get("score", 0)
+            final_score = ('Total: ' + str(game_response.get("score", 0)), 'Sold: ' + str(game_response.get("kwhRevenue", 0)), 'Happy: ' + str(game_response.get("customerCompletionScore", 0)))
 
             if should_move_on_to_next_tick(game_response):
                 good_ticks.append(current_tick)

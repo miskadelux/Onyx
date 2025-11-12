@@ -1,5 +1,5 @@
 from client import ConsiditionClient
-from own_logic import get_all_customers, get_all_stations, create_graph, find_avalible_stations, get_all_zones, make_choicev5, create_recommendation, load_total_production, save_ticks, check_for_juice, find_dumb_stations, customer_book
+from own_logic import get_all_customers, get_all_stations, create_graph, find_avalible_stations, get_all_zones, make_choicev5, create_recommendation, load_total_production, save_ticks, check_for_juice, find_dumb_stations, customer_book, print_map_UI
 
 def should_move_on_to_next_tick(response):
     return True
@@ -12,10 +12,8 @@ def generate_customer_recommendations(end_map, customers_with_recommendation, gr
 
 
     for i in range(cmr_left):
-        print("done")
         cmr_left = len(customers) - len(customers_with_recommendation)
         for customer in customers:
-
             if customer['id'] not in customers_with_recommendation:
                 reachable_stations = find_avalible_stations(customer, graph, stations, zones, zone_logs)
                 reachable_dumb_stations = find_dumb_stations(customer, graph, stations, zones, zone_logs)
@@ -43,15 +41,6 @@ def generate_customer_recommendations(end_map, customers_with_recommendation, gr
                     print(customer['id'], 'did not find an avalible station at all')
                     i += 1
 
-
-
-
-
-
-
-
-
-    
     print(l, ' didnt find a station 1')
     print(i, ' didnt find a station 2')
     return recommendations
@@ -77,9 +66,9 @@ def main():
     customers_with_recommendation = []
 
 
-    final_score = 0
+    final_score = None
     good_ticks = []
-
+    print_map_UI(start_map, config)
     current_tick = generate_tick(0, start_map, customers_with_recommendation, graph, stations, zones, zone_logs)
     input_payload = {
         "mapName": map_name,
@@ -93,7 +82,7 @@ def main():
             game_response = client.post_game(input_payload)
 
             # Sum the scores directly (assuming they are numbers)
-            final_score = game_response.get("score", 0)
+            final_score = ('Total: ' + str(game_response.get("score", 0)), 'Sold: ' + str(game_response.get("kwhRevenue", 0)), 'Happy: ' + str(game_response.get("customerCompletionScore", 0)))
 
             if should_move_on_to_next_tick(game_response):
                 good_ticks.append(current_tick)

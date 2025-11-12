@@ -1,14 +1,14 @@
 import sys
 from client import ConsiditionClient
-from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, get_all_zones, find_station, make_choice, create_recommendation, load_total_production, find_avalible_multi_stations
+from own_logic import print_map_UI, get_all_customers, get_all_stations, create_graph, find_customer, find_avalible_stations, get_all_zones, find_station, make_choice, create_recommendation, load_total_production, find_dumb_stations
 
 def generate_customer_recommendations(map_obj, current_tick):
     return [
             {
-              "customerId": "0.123",
+              "customerId": '0.24',
               "chargingRecommendations": [
                 {
-                  "nodeId": '14.10', # 7.13
+                  "nodeId": '5.7', # 7.13
                   "chargeTo": 1
                 }
               ]
@@ -17,15 +17,15 @@ def generate_customer_recommendations(map_obj, current_tick):
 
 def generate_customer_recommendationsa(map_obj, current_tick):
     return [
-            {
-              "customerId": "0.123",
-              "chargingRecommendations": [
-                {
-                  "nodeId": '14.7', # 7.13
-                  "chargeTo": 1
-                }
-              ]
-            }
+            # {
+            #   "customerId": "0.131",
+            #   "chargingRecommendations": [
+            #     {
+            #       "nodeId": '2.4', # 7.13
+            #       "chargeTo": 1
+            #     }
+            #   ]
+            # }
           ]
 
 def generate_tick(map_obj, current_tick):
@@ -42,7 +42,7 @@ def generate_ticka(map_obj, current_tick):
 def main():
     api_key = "1546ce68-d586-461a-9534-add93e4daacf"
     base_url = "http://localhost:8080/api" #"https://api.considition.com/api"
-    map_name = "Clutchfield"
+    map_name = "Batterytown"
 
     zone_logs = load_total_production()
     client = ConsiditionClient(base_url, api_key)
@@ -53,7 +53,7 @@ def main():
         print("Failed to fetch map!")
         sys.exit(1)
     #83, 
-    toTick = 140
+    toTick = 80
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0), generate_ticka(map_obj, 85)],
@@ -75,8 +75,8 @@ def main():
         + game_response.get("score", 0)
     )
 
-    cmr = find_customer('0.123', e_customers)
-    l = find_avalible_multi_stations(cmr, graph, stations, zones, zone_logs)
+    cmr = find_customer('0.24', e_customers)
+    l = find_dumb_stations(cmr, graph, stations, zones, zone_logs)
     #choice = make_choice(l)
     # # rec = create_recommendation(choice['inNode'], cmr['id'], 1)
     # print(rec)
@@ -92,6 +92,12 @@ def main():
     # for i in l:
     #     print(i)
 
+
+  #0.131
+  #0.24 #
+  #0.157
+  #0.90
+  #0.15
 
 
 

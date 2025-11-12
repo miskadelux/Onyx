@@ -85,9 +85,7 @@ def main():
 
 
 
-    final_score = (
-        + game_response.get("score", 0)
-    )
+    final_score = ('Total: ' + str(game_response.get("score", 0)), 'Sold: ' + str(game_response.get("kwhRevenue", 0)), 'Happy: ' + str(game_response.get("customerCompletionScore", 0)))
 
 
     print(final_score)
