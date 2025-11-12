@@ -245,11 +245,48 @@ def make_choice(reachable_stations, customer, graph):
     for station in reachable_stations: # Kortaste sträckan till endpoint
         if reachable_stations[station]['length'] + shortest_length(reachable_stations[station]['inNode'], graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm'])['length'] < chosen_station['length'] + shortest_length(chosen_station['inNode'], graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm'])['length']:
             chosen_station = reachable_stations[station]
-    
-    #persona
 
     return chosen_station
 
+def make_choicev5(reachable_stations, customer, graph, zones, zone_logs):
+    if len(reachable_stations) == 0:
+        raise ValueError('NoAvalibleStation', customer, reachable_stations)
+
+    
+    #print('starting:',chosen_station)
+    #print('customer:',customer)
+
+    if customer['persona'] == 'Stressed' or customer['persona'] == 'DislikesDriving':
+        pass
+
+    elif customer['persona'] == 'EcoConscious':
+        eco_friendly_reachable_stations = {}
+        for station in reachable_stations: # EcoFriendly Val
+            for zone in zones:
+                if zone['id'] == reachable_stations[station]['zoneId']:
+                    for energy_source in zone['energySources']:
+                        if energy_source['type'] == 'Nuclear' or energy_source['type'] == 'Wind' or energy_source['type'] == 'Solar':
+                            
+                            eco_friendly_reachable_stations[station] = reachable_stations[station]
+
+        if len(eco_friendly_reachable_stations) != 0:
+            reachable_stations = eco_friendly_reachable_stations
+
+    # elif customer['persona'] == 'CostSensitive':
+    #     cheap_reachable_stations = {}
+    #     for station in reachable_stations: # billigt val
+    #         pass
+
+
+    chosen_station = reachable_stations[tuple(reachable_stations.keys())[0]]
+
+    for station in reachable_stations: # Kortaste sträckan till endpoint
+        if reachable_stations[station]['length'] + shortest_length(reachable_stations[station]['inNode'], graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm'])['length'] < chosen_station['length'] + shortest_length(chosen_station['inNode'], graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm'])['length']:
+            chosen_station = reachable_stations[station]
+    #persona
+
+
+    return chosen_station
 
 
 def create_recommendation(station_id, customer_id, charge_to):
@@ -278,3 +315,14 @@ def find_dumb_stations(customer, graph, stations, zones, zones_log):
     return None
     
 
+def customer_book(customer, zones, station_choice):
+    for zone in zones:
+        if zone['id'] == station_choice['zoneId']:
+            break
+    for i in range(customer['ticksToCharge']): # booking
+        if customer['ticksToReach'] + customer['departureTick'] + i not in station_choice['bookings'].keys():
+            zone['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] = 1 # booking production
+            station_choice['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] = 1 # booking charger
+        else:
+            zone['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] += 1 # booking production
+            station_choice['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] += 1 # booking charger

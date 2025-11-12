@@ -57,17 +57,9 @@ def generate_customer_recommendations(end_map, customers_with_recommendation, gr
             else:
                 print(customer['id'], 'did not find an avalible station at all')
                 i += 1
-
-
-
-
-
-
-
-
-
-    print(i, ' didnt find a station 2')
+    
     print(l, ' didnt find a station 1')
+    print(i, ' didnt find a station 2')
     return recommendations
 
 def generate_tick(current_tick, end_map, customers_with_recommendation, graph, stations, zones, zone_logs):
@@ -84,6 +76,8 @@ def main():
     zone_logs = load_total_production()
     client = ConsiditionClient(base_url, api_key)
     config = client.get_config(map_name)
+    print(config)
+    input()
     start_map = client.get_map(map_name)
     stations = get_all_stations(start_map)
     zones = get_all_zones(zone_logs[1], start_map['zones'])
@@ -132,7 +126,6 @@ def main():
     # Prioritera personer med minst val när jag implementerat bookningsystemet
     # se om folk kan hitta flera chargingstations de kan nå för att nå slutdestination # typ implementerat fast de åker bara till 1 mer och dör efter det
     # optimera valet
-
 
     c = get_all_customers(updated_map)
     k = check_for_juice(c)

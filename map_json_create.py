@@ -12,5 +12,4 @@ def save_map(dict_):
     with open('data/' + map_name + '.json', 'w') as f:
         json.dump(dict_, f, indent=4)
 
-
 save_map(start_map)
