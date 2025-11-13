@@ -52,8 +52,8 @@ def main():
     if not map_obj:
         print("Failed to fetch map!")
         sys.exit(1)
-    #83, 
-    toTick = 80
+
+    toTick = 0
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0), generate_ticka(map_obj, 85)],

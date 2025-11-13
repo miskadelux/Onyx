@@ -32,7 +32,7 @@ def generate_tick(current_tick, end_map, customers_with_recommendation, graph, s
 def main():
     api_key = "1546ce68-d586-461a-9534-add93e4daacf"
     base_url = "http://localhost:8080/api"
-    map_name = "Batterytown"
+    map_name = "Thunderroad"
 
     zone_logs = load_total_production()
     client = ConsiditionClient(base_url, api_key)
@@ -69,20 +69,7 @@ def main():
     print(len(k), 'ran out of juice')
 
 
-
-
-
-
     #save_ticks([ticks])
-
-
-
-    # Prioritera personer med minst val
-    # koppla bookningsystemet
-    # gör så att nya customers också får en rekkomendation, sker inte just nu då jag bar ger recomendationer till folk på tick 1
-    # optimera valet
-
-
 
 
     final_score = ('Total: ' + str(game_response.get("score", 0)), 'Sold: ' + str(game_response.get("kwhRevenue", 0)), 'Happy: ' + str(game_response.get("customerCompletionScore", 0)))

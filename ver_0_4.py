@@ -71,13 +71,11 @@ def generate_tick(current_tick, end_map, customers_with_recommendation, graph, s
 def main():
     api_key = "1546ce68-d586-461a-9534-add93e4daacf"
     base_url = "http://localhost:8080/api"
-    map_name = "Batterytown"
+    map_name = "Thunderroad"
 
     zone_logs = load_total_production()
     client = ConsiditionClient(base_url, api_key)
     config = client.get_config(map_name)
-    print(config)
-    input()
     start_map = client.get_map(map_name)
     stations = get_all_stations(start_map)
     zones = get_all_zones(zone_logs[1], start_map['zones'])
@@ -122,16 +120,12 @@ def main():
                 "playToTick": i,
                 "ticks": [*good_ticks, current_tick],
             }
-    
-    # Prioritera personer med minst val när jag implementerat bookningsystemet
-    # se om folk kan hitta flera chargingstations de kan nå för att nå slutdestination # typ implementerat fast de åker bara till 1 mer och dör efter det
-    # optimera valet
 
     c = get_all_customers(updated_map)
     k = check_for_juice(c)
     print(len(k), 'ran out of juice')
 
-    save_ticks(input_payload["ticks"])
+    #save_ticks(input_payload["ticks"])
 
     print(f"Final score: {final_score}")
 

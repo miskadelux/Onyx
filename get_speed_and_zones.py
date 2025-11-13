@@ -6,7 +6,7 @@ from own_logic import get_all_customers_without_speed, find_customer
 def main():
     api_key = "1546ce68-d586-461a-9534-add93e4daacf"
     base_url = "http://localhost:8080/api" #"https://api.considition.com/api"
-    map_name = "Batterytown"
+    map_name = "Thunderroad"
 
     
     client = ConsiditionClient(base_url, api_key)
