@@ -1,5 +1,5 @@
 from client import ConsiditionClient
-from own_logic import get_all_customers, get_all_stations, create_graph, find_avalible_stations, get_all_zones, make_choicev5, create_recommendation, load_total_production, save_ticks, check_for_juice, find_dumb_stations, customer_book, print_map_UI
+from own_logic import get_all_customers, get_all_stations, create_graph, find_avalible_stations, get_all_zones, make_choicev5, create_recommendation, load_total_production, save_ticks, check_for_juice, find_dumb_stations, customer_book, print_map_UI, make_choice
 
 def should_move_on_to_next_tick(response):
     return True
@@ -19,7 +19,7 @@ def generate_customer_recommendations(end_map, customers_with_recommendation, gr
                 reachable_dumb_stations = find_dumb_stations(customer, graph, stations, zones, zone_logs)
 
                 if len(reachable_stations) != 0:
-                    station_choice = make_choicev5(reachable_stations, customer, graph, zones, zone_logs)
+                    station_choice = make_choice(reachable_stations, customer, graph) ### The make_choicev5 didn't work as well zones, zone_logs
 
                     customer_book(customer, zones, station_choice)
 
@@ -51,7 +51,7 @@ def generate_tick(current_tick, end_map, customers_with_recommendation, graph, s
         "customerRecommendations": generate_customer_recommendations(end_map, customers_with_recommendation, graph, stations, zones, zone_logs),
     }
 
-def main():
+def main(): 
     api_key = "1546ce68-d586-461a-9534-add93e4daacf"
     base_url = "http://localhost:8080/api"
     map_name = "Thunderroad"
@@ -112,7 +112,7 @@ def main():
     k = check_for_juice(c)
     print(len(k), 'ran out of juice')
 
-    save_ticks(input_payload["ticks"])
+    #save_ticks(input_payload["ticks"])
 
     print(f"Final score: {final_score}")
 

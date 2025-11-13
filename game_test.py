@@ -4,15 +4,15 @@ from own_logic import print_map_UI, get_all_customers, get_all_stations, create_
 
 def generate_customer_recommendations(map_obj, current_tick):
     return [
-            {
-              "customerId": '0.24',
-              "chargingRecommendations": [
-                {
-                  "nodeId": '5.7', # 7.13
-                  "chargeTo": 1
-                }
-              ]
-            }
+            # {
+            #   "customerId": '0.24',
+            #   "chargingRecommendations": [
+            #     {
+            #       "nodeId": '5.7', # 7.13
+            #       "chargeTo": 1
+            #     }
+            #   ]
+            # }
           ]
 
 def generate_customer_recommendationsa(map_obj, current_tick):
@@ -42,10 +42,15 @@ def generate_ticka(map_obj, current_tick):
 def main():
     api_key = "1546ce68-d586-461a-9534-add93e4daacf"
     base_url = "http://localhost:8080/api" #"https://api.considition.com/api"
-    map_name = "Batterytown"
+    map_name = "Thunderroad"
+
+
 
     zone_logs = load_total_production()
     client = ConsiditionClient(base_url, api_key)
+
+    # config = client.get_config(map_name)
+    # input(config)
     map_obj = client.get_map(map_name)
     zones = get_all_zones(zone_logs[1], map_obj['zones'])
 
@@ -53,7 +58,7 @@ def main():
         print("Failed to fetch map!")
         sys.exit(1)
 
-    toTick = 0
+    toTick = 4
     input_payload = {
         "mapName": map_name,
         "ticks": [generate_tick(map_obj, 0), generate_ticka(map_obj, 85)],
