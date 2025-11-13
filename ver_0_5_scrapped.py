@@ -19,7 +19,7 @@ def generate_customer_recommendations(end_map, customers_with_recommendation, gr
                 reachable_dumb_stations = find_dumb_stations(customer, graph, stations, zones, zone_logs)
 
                 if len(reachable_stations) != 0:
-                    station_choice = make_choice(reachable_stations, customer, graph) ### The make_choicev5 didn't work as well zones, zone_logs
+                    station_choice = make_choicev5(reachable_stations, customer, graph) ### The make_choicev5 didn't work as well zones, zone_logs
 
                     customer_book(customer, zones, station_choice)
 

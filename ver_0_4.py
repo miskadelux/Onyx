@@ -1,8 +1,7 @@
 import sys
 import time
 from client import ConsiditionClient
-from own_logic import get_all_customers, get_all_stations, create_graph, find_avalible_stations, get_all_zones, make_choice, create_recommendation, load_total_production, save_ticks, check_for_juice, find_dumb_stations
-
+from own_logic import get_all_customers, get_all_stations, create_graph, find_avalible_stations, get_all_zones, make_choice, create_recommendation, load_total_production, save_ticks, check_for_juice, find_dumb_stations, customer_book
 def should_move_on_to_next_tick(response):
     return True
 
@@ -18,17 +17,7 @@ def generate_customer_recommendations(end_map, customers_with_recommendation, gr
 
             if len(reachable_stations) != 0:
                 stations_choice = make_choice(reachable_stations, customer, graph)
-                for zone in zones:
-                    if zone['id'] == stations_choice['zoneId']:
-                        break
-
-                for i in range(customer['ticksToCharge']): # booking
-                    if customer['ticksToReach'] + customer['departureTick'] + i not in stations_choice['bookings'].keys():
-                        zone['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] = 1 # booking production
-                        stations_choice['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] = 1 # booking charger
-                    else:
-                        zone['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] += 1 # booking production
-                        stations_choice['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] += 1 # booking charger
+                customer_book(customer, zones, stations_choice)
 
                 recommendations.append(create_recommendation(stations_choice['inNode'], customer['id'], 1))
                 customers_with_recommendation.append(customer['id'])
@@ -39,17 +28,7 @@ def generate_customer_recommendations(end_map, customers_with_recommendation, gr
                 
                 stations_choice = reachable_dumb_stations[tuple(reachable_dumb_stations.keys())[0]]
 
-                for zone in zones:
-                    if zone['id'] == stations_choice['zoneId']:
-                        break
-
-                for i in range(customer['ticksToCharge']): # booking
-                    if customer['ticksToReach'] + customer['departureTick'] + i not in stations_choice['bookings'].keys():
-                        zone['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] = 1 # booking production
-                        stations_choice['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] = 1 # booking charger
-                    else:
-                        zone['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] += 1 # booking production
-                        stations_choice['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] += 1 # booking charger
+                customer_book(customer, zones, stations_choice)
 
                 recommendations.append(create_recommendation(stations_choice['inNode'], customer['id'], 1))
                 customers_with_recommendation.append(customer['id'])

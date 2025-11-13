@@ -248,6 +248,20 @@ def make_choice(reachable_stations, customer, graph):
 
     return chosen_station
 
+def make_choicev6(reachable_stations, customer, graph):
+    if len(reachable_stations) == 0:
+        raise ValueError('NoAvalibleStation', customer, reachable_stations)
+
+    chosen_station = reachable_stations[tuple(reachable_stations.keys())[0]]
+    #print('starting:',chosen_station)
+    #print('customer:',customer)
+    
+    for station in reachable_stations: # Kortaste sträckan till endpoint
+        if reachable_stations[station]['length'] + shortest_length(reachable_stations[station]['inNode'], graph, customer['toNode'])['length'] < chosen_station['length'] + shortest_length(chosen_station['inNode'], graph, customer['toNode'])['length']:
+            chosen_station = reachable_stations[station]
+
+    return chosen_station
+
 def make_choicev5(reachable_stations, customer, graph, zones, zone_logs):
     if len(reachable_stations) == 0:
         raise ValueError('NoAvalibleStation', customer, reachable_stations)
@@ -314,6 +328,26 @@ def find_dumb_stations(customer, graph, stations, zones, zones_log):
 
     return None
     
+def find_possible_multi_station(customer, graph, stations, zones, zone_logs):
+    reachable_multi_stations = {}
+    reachable_stations = {}
+    length = calculate_max_length(customer)
+    avalible_nodes = shortest_length(customer['inNode'], graph, max_length=length)
+
+    for station in stations:
+        if station['inNode'] in avalible_nodes.keys():
+            reachable_stations[station['inNode']] = station
+            reachable_stations[station['inNode']]['length'] = avalible_nodes[station['inNode']]['length']
+            reachable_stations[station['inNode']]['numNodesTo'] = avalible_nodes[station['inNode']]['numNodesTo']
+
+    max_lenght = customer['maxCharge'] / customer['energyConsumptionPerKm']
+    for station in reachable_stations:
+        avalible_station_nodes = shortest_length(reachable_stations[station]['inNode'], graph, max_length=max_lenght)
+        for next_station in stations:
+            if next_station['inNode'] in avalible_station_nodes.keys():
+                reachable_multi_stations[station] = reachable_stations[station]
+
+    return reachable_multi_stations
 
 def customer_book(customer, zones, station_choice):
     for zone in zones:
