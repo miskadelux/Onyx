@@ -5,21 +5,39 @@ from own_logic import print_map_UI, get_all_customers, get_all_stations, create_
 def generate_customer_recommendations(map_obj, current_tick):
     return [
             {
-              "customerId": '0.233',
+              "customerId": '0.271',
               "chargingRecommendations": [
                 {
-                  "nodeId": '6.14', # 7.13
+                  "nodeId": '10.18', # 7.13
                   "chargeTo": 1
                 }
               ]
             }
           ]
 
+def generate_customer_recommendationsa(map_obj, current_tick):
+    return [
+            {
+              "customerId": '0.271',
+              "chargingRecommendations": [
+                {
+                  "nodeId": '9.16', # 7.13
+                  "chargeTo": 1
+                }
+              ]
+            }
+          ]
 
 def generate_tick(map_obj, current_tick):
     return {
         "tick": current_tick,
         "customerRecommendations": generate_customer_recommendations(map_obj, current_tick),
+    }
+
+def generate_ticka(map_obj, current_tick):
+    return {
+        "tick": current_tick,
+        "customerRecommendations": generate_customer_recommendationsa(map_obj, current_tick),
     }
 
 def main():
@@ -44,7 +62,7 @@ def main():
     toTick = 0
     input_payload = {
         "mapName": map_name,
-        "ticks": [generate_tick(map_obj, 0)],
+        "ticks": [generate_tick(map_obj, 0)], #, generate_ticka(map_obj, 42)],
         "playToTick":  toTick
     }
 
@@ -63,8 +81,8 @@ def main():
         + game_response.get("score", 0)
     )
 
-    cmr = find_customer('0.168', e_customers)
-    l = find_possible_multi_station(cmr, graph, stations, zones, zone_logs)
+    cmr = find_customer('0.271', e_customers)
+    l = find_avalible_stations(cmr, graph, stations, zones, zone_logs)
     #choice = make_choice(l)
     # # rec = create_recommendation(choice['inNode'], cmr['id'], 1)
     # print(rec)

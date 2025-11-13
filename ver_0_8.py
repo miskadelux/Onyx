@@ -1,35 +1,37 @@
 from client import ConsiditionClient
-from own_logic import get_all_customers, get_all_stations, create_graph, find_avalible_stations, get_all_zones, create_recommendation, load_total_production, save_ticks, check_for_juice, find_dumb_stations, customer_book, find_possible_multi_station, make_choicev6
+from own_logic import get_all_customers, get_all_stations, create_graph, get_all_zones, create_recommendation, load_total_production, save_ticks, check_for_juice, find_dumb_stations, customer_book, find_possible_multi_station, make_choicev6, find_avalible_stationsV8
 
 def should_move_on_to_next_tick(response):
     return True
 
-def generate_customer_recommendations(end_map, customers_with_direct_rec,  customers_with_multi_rec, bad_customers, graph, stations, zones, zone_logs):
+def generate_customer_recommendations(end_map, customers_with_direct_rec,  customers_with_multi_rec, bad_customers, graph, stations, zones, zone_logs, tick):
     customers = get_all_customers(end_map)
     recommendations = []
 
     for customer in customers:
         if customer['id'] in customers_with_multi_rec and customer['state'] == 'Charging':
             customers_with_multi_rec.remove(customer['id'])
+            #customer['chargeRemaining'] = 1
 
 
 
 
         if customer['id'] not in customers_with_direct_rec and customer['id'] not in customers_with_multi_rec and customer['id'] not in bad_customers:
-            reachable_stations = find_avalible_stations(customer, graph, stations, zones, zone_logs)
+            reachable_stations = find_avalible_stationsV8(customer, graph, stations, zones, zone_logs, tick)
             multi_reachable_stations = find_possible_multi_station(customer, graph, stations, zones, zone_logs) # does not check bookings right now, the bookings need to be made different because I am adding the departure tick plus arrival tick, but arrival tick needs to be extended every time it finds a new station
 
             if len(reachable_stations) != 0:
                 stations_choice = make_choicev6(reachable_stations, customer, graph)
+                customer['visited'].append(stations_choice['inNode'])
                 customer_book(customer, zones, stations_choice)
 
                 recommendations.append(create_recommendation(stations_choice['inNode'], customer['id'], 1))
                 customers_with_direct_rec.append(customer['id'])
 
             elif len(multi_reachable_stations) != 0:
-                #print(customer['id'], 'did not find an good avalible station')
                 
                 stations_choice = make_choicev6(multi_reachable_stations, customer, graph) ### need to make a smarter choice for multi
+                customer['visited'].append(stations_choice['inNode'])
 
                 customer_book(customer, zones, stations_choice)
 
@@ -37,7 +39,6 @@ def generate_customer_recommendations(end_map, customers_with_direct_rec,  custo
                 customers_with_multi_rec.append(customer['id'])
 
             else:
-                #print(customer['id'], 'did not find an good avalible station at all')
                 bad_customers.append(customer['id'])
 
 
@@ -46,7 +47,7 @@ def generate_customer_recommendations(end_map, customers_with_direct_rec,  custo
 def generate_tick(current_tick, end_map, customers_with_direct_rec,  customers_with_multi_rec, bad_customers, graph, stations, zones, zone_logs):
     return {
         "tick": current_tick,
-        "customerRecommendations": generate_customer_recommendations(end_map, customers_with_direct_rec,  customers_with_multi_rec, bad_customers, graph, stations, zones, zone_logs),
+        "customerRecommendations": generate_customer_recommendations(end_map, customers_with_direct_rec,  customers_with_multi_rec, bad_customers, graph, stations, zones, zone_logs, current_tick),
     }
 
 def main():
@@ -106,6 +107,8 @@ def main():
             }
 
 
+    for c in customers_with_multi_rec:
+        print(c)
 
     print(len(bad_customers), ': had to go nowhere (bad)')
     print(len(customers_with_multi_rec), ': had to go farther (multi)')

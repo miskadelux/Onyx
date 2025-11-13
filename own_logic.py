@@ -41,6 +41,7 @@ def get_all_customers(map):
                 if customer['id'] in customer_speeds.keys(): ### Det var någon patch en förare med en viss id spawnade in ifall man skickade rekomendation men sedan försvann. Tror det var en bugg. Detta löser buggen tills de hittar buggen!
                     customer['inNode'] = node['id']
                     customer['speed'] = customer_speeds[customer['id']]
+                    customer['visited'] = []
                     customers.append(customer)
                 
     for edge in map['edges']:
@@ -49,6 +50,7 @@ def get_all_customers(map):
                 if customer['id'] in customer_speeds.keys():### Det var någon patch en förare med en viss id spawnade in ifall man skickade rekomendation men sedan försvann. Tror det var en bugg. Detta löser buggen tills de hittar buggen!
                     customer['inNode'] = node['id']
                     customer['speed'] = customer_speeds[customer['id']]
+                    customer['visited'] = []
                     customers.append(customer)
     return customers
 
@@ -239,8 +241,6 @@ def make_choice(reachable_stations, customer, graph):
         raise ValueError('NoAvalibleStation', customer, reachable_stations)
 
     chosen_station = reachable_stations[tuple(reachable_stations.keys())[0]]
-    #print('starting:',chosen_station)
-    #print('customer:',customer)
     
     for station in reachable_stations: # Kortaste sträckan till endpoint
         if reachable_stations[station]['length'] + shortest_length(reachable_stations[station]['inNode'], graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm'])['length'] < chosen_station['length'] + shortest_length(chosen_station['inNode'], graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm'])['length']:
@@ -253,8 +253,6 @@ def make_choicev6(reachable_stations, customer, graph):
         raise ValueError('NoAvalibleStation', customer, reachable_stations)
 
     chosen_station = reachable_stations[tuple(reachable_stations.keys())[0]]
-    #print('starting:',chosen_station)
-    #print('customer:',customer)
     
     for station in reachable_stations: # Kortaste sträckan till endpoint
         if reachable_stations[station]['length'] + shortest_length(reachable_stations[station]['inNode'], graph, customer['toNode'])['length'] < chosen_station['length'] + shortest_length(chosen_station['inNode'], graph, customer['toNode'])['length']:
@@ -262,13 +260,10 @@ def make_choicev6(reachable_stations, customer, graph):
 
     return chosen_station
 
+
 def make_choicev5(reachable_stations, customer, graph, zones, zone_logs):
     if len(reachable_stations) == 0:
         raise ValueError('NoAvalibleStation', customer, reachable_stations)
-
-    
-    #print('starting:',chosen_station)
-    #print('customer:',customer)
 
     if customer['persona'] == 'Stressed' or customer['persona'] == 'DislikesDriving':
         pass
@@ -295,7 +290,7 @@ def make_choicev5(reachable_stations, customer, graph, zones, zone_logs):
     chosen_station = reachable_stations[tuple(reachable_stations.keys())[0]]
 
     for station in reachable_stations: # Kortaste sträckan till endpoint
-        if reachable_stations[station]['length'] + shortest_length(reachable_stations[station]['inNode'], graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm'])['length'] < chosen_station['length'] + shortest_length(chosen_station['inNode'], graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm'])['length']:
+        if reachable_stations[station]['length'] + shortest_length(reachable_stations[station]['inNode'], graph, customer['toNode'])['length'] < chosen_station['length'] + shortest_length(chosen_station['inNode'], graph, customer['toNode'])['length']:
             chosen_station = reachable_stations[station]
     #persona
 
@@ -328,7 +323,8 @@ def find_dumb_stations(customer, graph, stations, zones, zones_log):
 
     return None
     
-def find_possible_multi_station(customer, graph, stations, zones, zone_logs):
+def find_possible_multi_station(customer, graph, stations, zones, zones_log):
+    filtered_reachable_multi_stations = {}
     reachable_multi_stations = {}
     reachable_stations = {}
     length = calculate_max_length(customer)
@@ -347,7 +343,16 @@ def find_possible_multi_station(customer, graph, stations, zones, zone_logs):
             if next_station['inNode'] in avalible_station_nodes.keys():
                 reachable_multi_stations[station] = reachable_stations[station]
 
-    return reachable_multi_stations
+    for visited in customer['visited']:
+        for station in reachable_multi_stations:
+            if visited != station:
+                filtered_reachable_multi_stations[station] = reachable_multi_stations[station]
+
+
+    if len(filtered_reachable_multi_stations) == 0:
+        return reachable_multi_stations
+    else:
+        return filtered_reachable_multi_stations
 
 def customer_book(customer, zones, station_choice):
     for zone in zones:
@@ -356,7 +361,57 @@ def customer_book(customer, zones, station_choice):
     for i in range(customer['ticksToCharge']): # booking
         if customer['ticksToReach'] + customer['departureTick'] + i not in station_choice['bookings'].keys():
             zone['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] = 1 # booking production
-            station_choice['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] = 1 # booking charger
+            #station_choice['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] = 1 # booking charger
         else:
             zone['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] += 1 # booking production
-            station_choice['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] += 1 # booking charger
+            #station_choice['bookings'][customer['ticksToReach'] + customer['departureTick'] + i] += 1 # booking charger
+
+
+
+
+def find_avalible_stationsV8(customer, graph, stations, zones, zones_log, tick):
+    if customer['departureTick'] > tick:
+        
+        tick_count = customer['departureTick']
+    else:
+        tick_count = tick
+        
+    reachable_stations = {}
+    length = calculate_max_length(customer)
+    avalible_nodes = shortest_length(customer['inNode'], graph, max_length=length)
+
+    for station in stations:
+        if station['inNode'] in avalible_nodes.keys():
+            reachable_stations[station['inNode']] = station
+            reachable_stations[station['inNode']]['length'] = avalible_nodes[station['inNode']]['length']
+            reachable_stations[station['inNode']]['numNodesTo'] = avalible_nodes[station['inNode']]['numNodesTo']
+
+    rem = []
+    for node in reachable_stations: 
+
+        ticks_charging = charging_ticks(customer['maxCharge'], customer['energyConsumptionPerKm'], reachable_stations[node], length) #How long it will charge
+        reach_in_ticks = math.ceil(reachable_stations[node]['length'] / customer['speed']) + (3 * (reachable_stations[node]['numNodesTo']- 1) + 2) #Amount of ticks, mostly accurate, I think might differ sometimes by -1 +2 max (from experiment) I think because some edges are weird
+
+        customer['ticksToCharge'] = ticks_charging
+        customer['ticksToReach'] = reach_in_ticks
+
+        #What happens if they become full? - bug
+        if reach_in_ticks + tick_count in reachable_stations[node]['bookings'].keys() and reachable_stations[node]['bookings'][reach_in_ticks + tick_count] == station['totalAmountOfChargers'] - station['totalAmountOfBrokenChargers']: # removes if bookings of chargers are full on arrival
+            rem.append(node)
+
+        #What happens if they become full? - bug
+        for zone in zones:
+            if reachable_stations[node]['zoneId'] == zone['id'] and reach_in_ticks + tick_count in zone['bookings'].keys():
+                for zone_ in zones_log[reach_in_ticks  + tick_count]['zones']:
+                    if zone_['zoneId'] == reachable_stations[node]['zoneId'] and zone['bookings'][reach_in_ticks + tick_count] + reachable_stations[node]['chargeSpeedPerCharger'] > zone_['totalProduction'] and node not in rem: # removes if bookings of totalDemand are full on arrival
+                        rem.append(node)
+                break
+
+
+        if shortest_length(node, graph, customer['toNode'], customer['maxCharge'] / customer['energyConsumptionPerKm']) == None and node not in rem:# Removes if endpoint not reachable from station
+            rem.append(node)
+
+    for node in rem:
+        del reachable_stations[node]
+
+    return reachable_stations
