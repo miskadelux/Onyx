@@ -12,8 +12,8 @@ def main():
         "mapName": map_name,
         "ticks": ticks,
     }
-    # 15558 highscore # id 019a74fa-82d9-7cec-a703-0e4d92dd5faf # Clutchfield
-    # 17225 highscore # id 019a74f8-899b-737d-ab79-088728cd8a73 # Batterytown
+    # 27725 highscore # id 019a7ac4-db7b-7a2b-a1a4-a59c35fd2cc3 # Clutchfield
+    # 36202 highscore # id 019a7ac8-6f38-7b80-b689-014e9ef27686 # Batterytown
     # 34429 highscore # id 019a7a8f-1d05-7e1c-b28d-5867702f87cb # Thunderroad
 
     game_response = client.post_game(input_payload)
